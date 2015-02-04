@@ -1,0 +1,6 @@
+Les outils inclus ici sont :
+- updateods.pl :: ceci permet d'insérer les notes des étudiants dans un fichier .ods issu (après conversion .xls->.ods) de la plateforme de gestions des cours de l'ULB.
+
+(et c'est tout pour le moment !)
+
+Contact : nrichard@ulb.ac.be
