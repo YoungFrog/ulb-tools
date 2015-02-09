@@ -1,4 +1,4 @@
-#!/usr/bin/env perl -w
+#!/usr/bin/env perl
 
 # Copyright (C) 2015 by Nicolas Richard
 
@@ -17,6 +17,7 @@
 
 use OpenOffice::OODoc;
 use feature 'say';
+use warnings;
 
 # 0. Usage: perl $0 filename < fichier-avec-notes
 
