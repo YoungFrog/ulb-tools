@@ -18,6 +18,7 @@
 use OpenOffice::OODoc;
 use feature 'say';
 use warnings;
+use Getopt::Long;
 
 # 0. Usage: perl $0 filename < fichier-avec-notes
 
@@ -27,13 +28,22 @@ use warnings;
 sub usage {
   die<<EOF
 Usage:
-    perl $0 filename < fichier-avec-notes
+    perl $0 [--line PREMIERE-LIGNE] [--target COLONNE-NOTE ] [--column COLONNE-MATRICULE] filename < fichier-avec-notes
 Où "fichier-avec-notes" est un fichier de la forme: une note par ligne
 sous la forme:
 matricule1 note1
 matricule2 note2
 EOF
 }
+
+my $line = 1;
+my $col = "B"; #matricule
+my $targetcol = "J"; #note
+
+GetOptions ("line=i" => \$line, # i means integer
+            "column=s" => \$col,          # s means string
+            "target-column=s"  => \$targetcol)
+or usage;
 
 my $file = shift;
 usage "No file given\n" unless $file;
@@ -50,9 +60,6 @@ usage "No notes found on STDIN\n" unless %note;
 
 # 2. loop over cell values in given column
 my $doc = odfDocument(file => $file);
-my $line = 1;
-my $col = "B"; #matricule
-my $targetcol = "J"; #note
 my $table = $doc->getTable(0);
 # i.e. first table of document. See OpenOffice::OODoc::Text regarding
 # the normalize argument. It can't be used however, probably the table
