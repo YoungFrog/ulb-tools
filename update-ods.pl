@@ -73,15 +73,19 @@ my %seenmatricule; # remember matricules that were actually used
 while (my $matricule = $doc->cellValue($table,"$col$line")) {
   if (defined $note{$matricule}) {
     $seenmatricule{$matricule}++;
-    my $update = 1;
+    my $update = 0; # play safe : update explicitly.
     if (my $value = $doc->cellValue($table, "$targetcol$line")) {
       if (not ($note{$matricule} eq $value)) {
         if ($force) {
+          $update = 1;
           warn "Cell $targetcol$line forcibly updated. Matricule/old value/new value: $matricule/$value/$note{$matricule}\n"
         } else {
+          $update = 0;
           warn "Cell $targetcol$line skipped. Matricule/old value/new value: $matricule/$value/$note{$matricule}\n";
         }
       }
+    } else {
+      $update = 1;
     }
     if ($update) {
       $doc->cellValue($table, "$targetcol$line", $note{$matricule});
