@@ -28,7 +28,7 @@ use Getopt::Long;
 sub usage {
   die<<EOF
 Usage:
-    perl $0 [--line PREMIERE-LIGNE] [--target COLONNE-NOTE ] [--column COLONNE-MATRICULE] filename < fichier-avec-notes
+    perl $0 [--force] [--line PREMIERE-LIGNE] [--target COLONNE-NOTE ] [--column COLONNE-MATRICULE] filename < fichier-avec-notes
 Où "fichier-avec-notes" est un fichier de la forme: une note par ligne
 sous la forme:
 matricule1 note1
@@ -39,10 +39,12 @@ EOF
 my $line = 1;
 my $col = "B"; #matricule
 my $targetcol = "J"; #note
+my $force = 0; # écraser l'existant ?
 
 GetOptions ("line=i" => \$line, # i means integer
             "column=s" => \$col,          # s means string
-            "target-column=s"  => \$targetcol)
+            "target-column=s"  => \$targetcol,
+            "force" => \$force)
 or usage;
 
 my $file = shift;
@@ -71,9 +73,17 @@ my %seenmatricule; # remember matricules that were actually used
 while (my $matricule = $doc->cellValue($table,"$col$line")) {
   if (defined $note{$matricule}) {
     $seenmatricule{$matricule}++;
+    my $update = 1;
     if (my $value = $doc->cellValue($table, "$targetcol$line")) {
-      warn "Cell $targetcol$line skipped. Matricule/old value/new value: $matricule/$value/$note{$matricule}\n"
-    } else {
+      if (not ($note{$matricule} eq $value)) {
+        if ($force) {
+          warn "Cell $targetcol$line forcibly updated. Matricule/old value/new value: $matricule/$value/$note{$matricule}\n"
+        } else {
+          warn "Cell $targetcol$line skipped. Matricule/old value/new value: $matricule/$value/$note{$matricule}\n";
+        }
+      }
+    }
+    if ($update) {
       $doc->cellValue($table, "$targetcol$line", $note{$matricule});
     }
   }
