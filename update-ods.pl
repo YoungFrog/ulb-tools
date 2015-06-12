@@ -33,18 +33,23 @@ Où "fichier-avec-notes" est un fichier de la forme: une note par ligne
 sous la forme:
 matricule1 note1
 matricule2 note2
+
+En utilisant une seule fois --force, seules les notes meilleures écraseront les notes existantes.
+En utilisant deux fois, toutes les notes données en entrées écraserons l'éventuelle note existante.
 EOF
 }
 
 my $line = 1;
 my $col = "B"; #matricule
 my $targetcol = "J"; #note
-my $force = 0; # écraser l'existant ?
+my $force = 0; # savoir si écraser l'existant ?
+# 1 = oui, si note inférieure
+# 2 = toujours.
 
 GetOptions ("line=i" => \$line, # i means integer
             "column=s" => \$col,          # s means string
             "target-column=s"  => \$targetcol,
-            "force" => \$force)
+            "force+" => \$force) 
 or usage;
 
 my $file = shift;
@@ -76,12 +81,21 @@ while (my $matricule = $doc->cellValue($table,"$col$line")) {
     my $update = 0; # play safe : update explicitly.
     if (my $value = $doc->cellValue($table, "$targetcol$line")) {
       if (not ($note{$matricule} eq $value)) {
-        if ($force) {
+        my $better;
+        {
+          no warnings qw(numeric);
+          $better = ($note{$matricule} > $value);
+        }
+        if ($force == 2 or ($force == 1 and $better)) {
           $update = 1;
           warn "Cell $targetcol$line forcibly updated. Matricule/old value/new value: $matricule/$value/$note{$matricule}\n"
         } else {
           $update = 0;
-          warn "Cell $targetcol$line skipped. Matricule/old value/new value: $matricule/$value/$note{$matricule}\n";
+          if ($better) {
+            warn "Cell $targetcol$line skipped. Matricule/old value/new value: $matricule/$value/$note{$matricule} [needs -f to override]\n";
+          } else {
+            warn "Cell $targetcol$line skipped. Matricule/old value/new value: $matricule/$value/$note{$matricule} [needs -ff to override]\n";
+          }
         }
       }
     } else {
