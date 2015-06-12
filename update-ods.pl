@@ -60,6 +60,9 @@ usage "Non-existant file\n" unless -f $file;
 my %note;
 while (<>) {
   my ($matricule, $note) = split;
+  if (defined($note{$matricule})) {
+    die "Duplicate matricule entry : $matricule ($note{$matricule} and $note)\n"
+  }
   $note{$matricule} = $note
 }
 
