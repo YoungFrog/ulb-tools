@@ -210,14 +210,20 @@ Read the comments in the .el file to see what you have to do with the result."
                                     ;; Warning: doing "convert foo.pdf foo.jpg bar.pdf" results in a bloated bar.pdf.
                                     ;; my workaround : do a pdf->jpg conversion first. I used:
                                     ;;  for j in ~/Projets-QCM/MathF112-2014-15-janvier-{matin,aprem,pharma}/cr/corrections/pdf/; do cd $j; for i in *.pdf; do sem -j3 'convert -geometry 1000x1414 -density 300 "'$i'" "'${i%.pdf}'-%d.jpg"'; done; done
+                                    ;; the second year I did :
+                                    ;;  j=~/Projets-QCM/MathF112-2015-2016-novembre/; j=$j/cr/corrections/pdf/; cd $j; for i in *.pdf; do sem -j3 'convert -geometry 1000x1414 -density 300 "'$i'" "'${i%.pdf}'-%d.jpg"'; done
 
                                     ;; I was previously using pdfimages but this extracts the scan without the annotations.
                                     ;; There probably is a way to actually reuse the scan and flatten the annotation onto it but... how ?
 
                                     (let ((pdffile (concat "cr/corrections/pdf/" (car files))))
-                                      (replace-regexp-in-string "\\.pdf" "-*.jpg" pdffile)
-                                      ;; the replace here accounts for the above remark. Using a shell glob is easy but might have unwanted results.
-                                      )
+                                      (if (not (string-match "\\.pdf$" pdffile))
+                                          (error "I'm lost here, because pdffile does not have pdf extension: %s" pdffile)
+                                        ;; the replace here accounts for the above remark. Using a shell glob is easy but might have unwanted results.
+                                        ;; We  used to do:
+                                        ; (replace-regexp-in-string "\\.pdf" "-*.jpg" pdffile)
+                                        ;; but then we have problems with quoting spaces...
+                                        (concat (shell-quote-argument (replace-match "" t t pdffile)) "-*.jpg")))
                                     " "
                                     (mapconcat (lambda (fn) (shell-quote-argument (concat "scans/" fn))) (cdr files) " ")
                                     " "
@@ -244,8 +250,15 @@ Read the comments in the .el file to see what you have to do with the result."
 
 
 (defun amc-tools-prepare-mails (who where template url-template)
-  "Create eml files to be sent."
-  (interactive "DWhere to put the eml files: \nfTemplate file: \nsURL template")
+  "Create eml files to be sent.
+We do not rely on ‘amc-tools-update-current-project’, only on our arguments:
+- WHO should be a list of directories where the files to be sent live. All files containing an @ or the string ‘-at-’ will be considered. A prefix and a suffix will be removed to obtain the email address. The prefix is four digits, followed by an optional \"colon-or-dash and again four digits\" and a dash. The suffix is -with-scans.pdf. This is pretty messy but ok...
+- WHERE is a directory, were the .eml files will be saved (then you have to send them)
+- TEMPLATE is the email template, where %%TO%% and %%URL%% will get replaced
+- URL-TEMPLATE is how to construct the url. It must contain an %s which will be replaced by the filename (sans its directory). Make sure the files are over there before actually sending the emails."
+
+  ;;  (interactive "DWhere to put the eml files: \nfTemplate file: \nsURL template")
+
   ;; example values for template:
   ;; "~/Projets-QCM/MathF112-2014-15-Novembre-final/cr/corrections/pdf/Sendmails/template.mail"
   ;; "~/mesnotes/CoursEtTPs/data/ad/c8cad6-0a0d-4120-9ea8-967be8dd3a38/resultats/janvier/template.mail"
@@ -260,17 +273,21 @@ Read the comments in the .el file to see what you have to do with the result."
           (lambda (dir)
             (directory-files
              dir
-             t "@" t))
+             t "@\\|-at-" t))
           who)))
     (mapc (lambda (file)
             "Make an .eml, attaching FILE to it. The %%TO%% field
             will be deduced from the filename."
-            (let ((email (replace-regexp-in-string "\\`[0-9]\\{4\\}\\(?::[0-9]\\{4\\}\\)?-"
-                                                   ""
-                                                   (file-name-nondirectory
-                                                    (string-remove-suffix "-with-scans.pdf"
-                                                                          file))
-                                                   t t))
+            (let ((email 
+                   (replace-regexp-in-string
+                    "-at-"
+                    "@"
+                    (replace-regexp-in-string "\\`[0-9]\\{4\\}\\(?:[-:][0-9]\\{4\\}\\)?-"
+                                              ""
+                                              (file-name-nondirectory
+                                               (string-remove-suffix "-with-scans.pdf"
+                                                                     file))
+                                              t t)))
                   (url (format url-template (file-name-nondirectory file))))
               (with-temp-file (expand-file-name (format "%s.eml" email)
                                                 where)

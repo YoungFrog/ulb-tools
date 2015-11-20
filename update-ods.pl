@@ -23,7 +23,7 @@ use Getopt::Long;
 sub usage {
   die<<EOF
 Usage:
-    perl $0 [--force] [--line PREMIERE-LIGNE] [--target COLONNE-NOTE ] [--column COLONNE-MATRICULE] FILENAME.ODS < fichier-avec-notes
+    perl $0 [--force] [--fataldupe] [--line PREMIERE-LIGNE] [--target COLONNE-NOTE ] [--column COLONNE-MATRICULE] FILENAME.ODS < fichier-avec-notes
 Où "fichier-avec-notes" est un fichier de la forme: une note par ligne
 sous la forme:
 matricule1 note1
@@ -43,11 +43,13 @@ my $targetcol = "J"; #note
 my $force = 0; # savoir si écraser l'existant ?
 # 1 = oui, si note inférieure
 # 2 = toujours.
+my $dupe_is_fatal = 0;
 
 GetOptions ("line=i" => \$line, # i means integer
             "column=s" => \$col,          # s means string
             "target-column=s"  => \$targetcol,
-            "force+" => \$force) 
+            "force+" => \$force,
+            "fataldupes+" => \$dupe_is_fatal)
 or usage;
 
 my $file = shift;
@@ -63,7 +65,7 @@ while (<>) {
     my $error = "Duplicate matricule entry : $matricule ($note{$matricule} and $note).";
     if ($note{$matricule} eq $note and $force) {
       warn $error . " Continuing.\n";
-    } else {
+    } elsif ($dupe_is_fatal) {
       die $error . " Dying.\n";
     }
   }
@@ -140,7 +142,8 @@ map {
       warn "Matricule vu plusieurs fois: $_\n";
     }
   } else {
-     warn "Matricule non-utilisé: $_\n";
+#    my $note = ;
+     warn "Matricule non-utilisé: $_ (Note: $note{$_})\n";
   }
 } keys %note;
 
