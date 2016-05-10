@@ -232,7 +232,11 @@ Read the comments in the .el file to see what you have to do with the result."
                                       (format "%s-with-scans.pdf" (file-name-sans-extension (car files)))
                                       "cr/corrections/pdf-with-scans")))))
                    "\n"))
-         hash))
+         hash)
+        ;; J'ignore pourquoi, mais le dernier "sem convert" n'est pas
+        ;; pris en compte. Ceci semble arranger les choses.
+        (insert "sem echo Terminé !")
+        )
       (find-file file)
       (message "Reste à exécuter le présent fichier..."))))
 
