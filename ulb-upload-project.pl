@@ -43,7 +43,7 @@ $m->submit_form(
 die 'Échec lors de la soumission du formulaire : ' . $m->res()->status_line()
   unless $m->success();
 
-print "Selection du projet...\n"
+print "Selection du projet...\n";
 $m-> get("$urlselectproject");
 die 'Échec de connexion (sélection du projet) : ' . $m->res->status_line()
   unless $m->success();
@@ -88,7 +88,7 @@ $input->value($file);
 $m->click("_submit");
 print HTML::FormatText::WithLinks->new()->parse($m->content);
 
-print "Re-génération du projet en prévisualisation...\n"
+print "Re-génération du projet en prévisualisation...\n";
 $m->get("$urlgenerate");
 print HTML::FormatText::WithLinks->new()->parse($m->content);
 
