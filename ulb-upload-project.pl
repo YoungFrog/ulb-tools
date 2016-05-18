@@ -11,7 +11,7 @@ use IO::Prompter;
 use HTML::FormatText::WithLinks;
 
 my $username = "nrichard";
-my $password = prompt 'Enter your password: ', -echo=>'';
+my $password = prompt 'Enter password: ', -echo=>'';
 my $destfile="mathematiques.xml";
 my $file = "/home/youngfrog/ownCloud/ulb/site/tmp/$destfile";
 
