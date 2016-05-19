@@ -65,8 +65,6 @@ my $formnum = 1 + firstidx { my $filedata;
                            } $m-> forms;
 
 
-# my @fields_for_uploading_file = ("_file_data" );
-
 print "Soumission du fichier: $file...\n";
 
 my $form = $m->form_number($formnum);
@@ -74,6 +72,11 @@ $form->action("$urlupload");
 # $form->accept_charset ($m->response()->content_charset);
 
 my $input = $form->find_input("_file_data");
+
+unless ($input) {
+  die "Could not find submission form.\n";
+}
+
 $input->value($file);
 # $input->filename("$destfile");
 # $input->headers("Content-Type" => "text/xml");
