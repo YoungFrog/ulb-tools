@@ -1,6 +1,9 @@
 Les outils inclus ici sont :
 - updateods.pl :: ceci permet d'insérer les notes des étudiants dans un fichier .ods issu (après conversion .xls->.ods) de la plateforme de gestions des cours de l'ULB.
+- amc-tools.el :: permet d'envoyer aux étudiants un mail avec un lien vers leur copie corrigée (via AMC).
+- ulb-id-from-name.pl :: consulte l'annuaire ULB (http://www.ulb.ac.be/commons/phonebook?mode=id-search) et retourne le/les "ID" correspondant.
+- ulb-upload-project.pl :: envoie un fichier sur "sitemanager", puis régénère la prévisualisation
 
-(et c'est tout pour le moment !)
+La plupart de ces outils sont ad-hoc. Par exemple ulb-upload-project.pl ne met à jour que le site web du département de math. Cependant, généraliser ces outils est probablement de l'ordre du faisable.
 
 Contact : nrichard@ulb.ac.be
