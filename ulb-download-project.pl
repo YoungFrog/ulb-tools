@@ -70,7 +70,6 @@ if ($samep) {
   print "Fichier temporaire laissé sur place: $tmpfile.\n"
 }
 
-print "Fini !";
 
 
 1;
