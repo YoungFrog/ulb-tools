@@ -1,4 +1,5 @@
-#!/usr/bin/perl -w
+#!/usr/bin/perl
+use warnings;
 use strict;
 use WWW::Mechanize;
 binmode STDOUT, ":utf8"; # spit utf8 to terminal
