@@ -60,7 +60,7 @@ usage "Non-existant file\n" unless -f $file;
 my %note;
 while (<>) {
   my ($matricule, $note) = split;
-  next unless $matricule =~ s/[0-9]+/;
+  next unless $matricule =~ /[0-9]+/;
   $matricule = sprintf "%09d", $matricule; # add leading zeroes
   if (defined($note{$matricule})) {
     my $error = "Duplicate matricule entry : $matricule ($note{$matricule} and $note).";
